@@ -1,68 +1,141 @@
 <x-app-layout>
 
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ $business->name }} 
-            </h2>
+    <div class="max-w-5xl mx-auto px-4 py-8">
 
-            <a 
-                href="{{ route('businesses.qr', $business) }}"
-                class="bg-black text-white px-4 py-2 rounded-lg text-sm"
-            >
-                Download QR
-            </a>
-        </div>
+        <!-- HEADER -->
+        <div class="flex items-center justify-between mb-6">
 
-    </x-slot>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">
+                    {{ $business->name }}
+                </h1>
 
-    <div class="py-10">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+                <p class="text-sm text-gray-500 mt-1">
+                    Manage feedback and reviews
+                </p>
+            </div>
 
-            <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex gap-2">
 
-                @if($feedbacks->count())
+                <a href="{{ route('businesses.qr', $business) }}"
+                   class="bg-black text-white px-4 py-2 rounded-xl text-sm hover:bg-gray-800">
+                    QR Code
+                </a>
 
-                    <div class="space-y-4">
-
-                        @foreach($feedbacks as $feedback)
-
-                            <div class="border rounded-2xl p-5">
-
-                                <div class="flex items-center justify-between mb-3">
-
-                                    <div class="text-red-500 font-semibold">
-                                        {{ $feedback->rating }}/5
-                                    </div>
-
-                                    <div class="text-sm text-gray-400">
-                                        {{ $feedback->created_at->diffForHumans() }}
-                                    </div>
-
-                                </div>
-
-                                <p class="text-gray-700">
-                                    {{ $feedback->message }}
-                                </p>
-
-                            </div>
-
-                        @endforeach
-
-                    </div>
-
-                @else
-
-                    <div class="text-gray-500">
-                        No feedback yet.
-                    </div>
-
-                @endif
+                <button
+                    onclick="copyLink('{{ url('/f/' . $business->uuid) }}', this)"
+                    class="bg-gray-100 text-gray-800 px-4 py-2 rounded-xl text-sm hover:bg-gray-200"
+                >
+                    Copy Link
+                </button>
 
             </div>
 
         </div>
+
+        <!-- STATS -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+
+            <div class="bg-white border border-gray-100 rounded-2xl p-4">
+                <div class="text-sm text-gray-500">Total</div>
+                <div class="text-xl font-semibold text-gray-900">
+                    {{ $feedbacks->count() }}
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-2xl p-4">
+                <div class="text-sm text-gray-500">Average</div>
+                <div class="text-xl font-semibold text-gray-900">
+                    {{ number_format($feedbacks->avg('rating'), 1) }}
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-2xl p-4">
+                <div class="text-sm text-gray-500">Positive</div>
+                <div class="text-xl font-semibold text-green-600">
+                    {{ $feedbacks->where('rating', '>=', 4)->count() }}
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-2xl p-4">
+                <div class="text-sm text-gray-500">Negative</div>
+                <div class="text-xl font-semibold text-red-600">
+                    {{ $feedbacks->where('rating', '<=', 3)->count() }}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FILTERS -->
+        <div class="flex gap-2 mb-6">
+
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'all']) }}"
+            class="px-4 py-2 rounded-xl text-sm {{ request('filter', 'all') == 'all' ? 'bg-black text-white' : 'bg-gray-100 text-gray-800' }}">
+                All
+            </a>
+
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'positive']) }}"
+            class="px-4 py-2 rounded-xl text-sm {{ request('filter') == 'positive' ? 'bg-black text-white' : 'bg-gray-100 text-gray-800' }}">
+                Positive
+            </a>
+
+            <a href="{{ request()->fullUrlWithQuery(['filter' => 'negative']) }}"
+            class="px-4 py-2 rounded-xl text-sm {{ request('filter') == 'negative' ? 'bg-black text-white' : 'bg-gray-100 text-gray-800' }}">
+                Negative
+            </a>
+
+        </div>
+
+        <!-- FEEDBACK LIST -->
+        <div class="space-y-4">
+
+            @forelse($feedbacks as $feedback)
+
+                <div class="bg-white border border-gray-100 rounded-2xl p-5">
+
+                    <div class="flex justify-between items-start">
+
+                        <div>
+
+                            <div class="text-sm font-semibold
+                                @if($feedback->rating >= 4) text-green-600
+                                @elseif($feedback->rating <= 2) text-red-600
+                                @else text-gray-600
+                                @endif
+                            ">
+                                {{ $feedback->rating }} / 5
+                            </div>
+
+                            @if($feedback->message)
+                                <p class="text-gray-700 text-sm mt-2">
+                                    {{ $feedback->message }}
+                                </p>
+                            @endif
+
+                        </div>
+
+                        <div class="text-xs text-gray-400">
+                            {{ $feedback->created_at->diffForHumans() }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            @empty
+            
+            <div class="mt-6">
+                {{ $feedbacks->links() }}
+            </div>
+
+                <div class="bg-white border border-gray-100 rounded-2xl p-6 text-center text-gray-500">
+                    No feedback yet.
+                </div>
+
+            @endforelse
+
+        </div>
+
     </div>
 
 </x-app-layout>

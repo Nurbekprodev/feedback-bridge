@@ -17,16 +17,30 @@ class BusinessController extends Controller
         return view('businesses.index', compact('businesses'));
     }
 
-    public function show(Business $business)
+    public function show(Business $business, Request $request)
     {
         abort_if($business->user_id !== auth()->id(), 403);
 
-        $feedbacks = $business->feedbacks()->latest()->get();
+        $query = $business->feedbacks()->latest();
 
-        return view('businesses.show', compact('business', 'feedbacks'));
+        if ($request->filter === 'positive') {
+            $query->where('rating', '>=', 4);
+        }
+
+        if ($request->filter === 'negative') {
+            $query->where('rating', '<=', 3);
+        }
+
+        $feedbacks = $query->paginate(10)->withQueryString();
+
+        $positiveCount = $business->feedbacks()
+            ->where('rating', '>=', 4)
+            ->count();
+
+        return view('businesses.show', compact('business', 'feedbacks', 'positiveCount'));
     }
 
-    public function create(Business $business){
+    public function create(){
 
         return view('businesses.create');
     }
