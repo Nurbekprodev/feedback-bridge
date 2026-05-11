@@ -23,6 +23,7 @@ class BusinessController extends Controller
 
         $query = $business->feedbacks()->latest();
 
+        // Rating filter
         if ($request->filter === 'positive') {
             $query->where('rating', '>=', 4);
         }
@@ -31,13 +32,44 @@ class BusinessController extends Controller
             $query->where('rating', '<=', 3);
         }
 
-        $feedbacks = $query->paginate(10)->withQueryString();
+        // Status filters
+        if ($request->filter === 'new') {
+            $query->where('status', 'new');
+        }
+
+        if ($request->filter === 'in_progress') {
+            $query->where('status', 'in_progress');
+        }
+
+        if ($request->filter === 'resolved') {
+            $query->where('status', 'resolved');
+        }
+
+        $feedbacks = $query
+            ->paginate(10)
+            ->withQueryString();
+
+        // Stats
+        $totalCount = $business->feedbacks()->count();
+
+        $averageRating = $business->feedbacks()->avg('rating');
 
         $positiveCount = $business->feedbacks()
             ->where('rating', '>=', 4)
             ->count();
 
-        return view('businesses.show', compact('business', 'feedbacks', 'positiveCount'));
+        $negativeCount = $business->feedbacks()
+            ->where('rating', '<=', 3)
+            ->count();
+
+        return view('businesses.show', compact(
+            'business',
+            'feedbacks',
+            'totalCount',
+            'averageRating',
+            'positiveCount',
+            'negativeCount'
+        ));
     }
 
     public function create(){

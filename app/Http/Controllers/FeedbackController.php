@@ -43,4 +43,18 @@ class FeedbackController extends Controller
         return back()->with('success', 'Feedback sent.');
     }
 
+    public function updateStatus(Request $request, Feedback $feedback)
+    {
+        abort_if($feedback->business->user_id !== auth()->id(), 403);
+
+        $request->validate([
+            'status' => ['required', 'in:new,in_progress,resolved'],
+        ]);
+
+        $feedback->update([
+            'status' => $request->status,
+        ]);
+
+        return back()->with('success', 'Status updated.');
+    }
 }

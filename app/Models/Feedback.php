@@ -10,11 +10,12 @@ class Feedback extends Model
         'business_id',
         'rating',
         'message',
+        'status',
     ];
     
     protected $table = 'feedbacks';
 
     public function business(){
-        $this->belongsTo(Business::class);
+        return $this->belongsTo(Business::class);
     }
 }

@@ -5,10 +5,4 @@
         </h2>
     </x-slot>
 
-    <div class="p-6">
-        <a
-            class=" underline hover:text-blue-500"
-            href="/businesses/create">Create Business</a>
-    </div>
-
 </x-app-layout>

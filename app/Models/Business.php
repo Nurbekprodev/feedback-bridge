@@ -22,6 +22,7 @@ class Business extends Model
         return $this->hasMany(Feedback::class);
     }
 
+
     protected static function booted()
     {
         static::creating(function ($business) {
