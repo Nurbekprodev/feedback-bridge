@@ -50,6 +50,23 @@ Route::post('/f/{uuid}', [FeedbackController::class, 'store'])
 
 
 // =====================
+// NOTIFICATIONS
+// =====================
+Route::post('/notifications/{notification}/read', function ($id){
+    $notification = auth()->user()
+        ->notifications()
+        ->findOrFail($id);
+
+    $notification->markAsRead();
+
+    return redirect()->route(
+        'businesses.show',
+        $notification->data['business_id']
+    );
+})->middleware('auth')->name('notifications.read');
+
+
+// =====================
 // PROFILE
 // =====================
 Route::middleware('auth')->group(function () {

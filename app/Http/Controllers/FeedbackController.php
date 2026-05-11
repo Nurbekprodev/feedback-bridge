@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Business;
 use App\Models\Feedback;
+use App\Notifications\FeedbackNotification;
 use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
@@ -26,11 +27,17 @@ class FeedbackController extends Controller
         ]);
 
         // create feedback
-        Feedback::create([
+        $feedback = Feedback::create([
             'business_id' => $business->id,
             'rating' => $request->rating,
             'message' => $request->message,
         ]);
+
+        if ($business->user && $request->rating <= 3) {
+            $business->user->notify(
+                new FeedbackNotification($feedback)
+            );
+        }
 
         // redirect
         return back()->with('success', 'Feedback sent.');

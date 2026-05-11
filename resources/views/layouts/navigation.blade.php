@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false, notificationsOpen: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -24,9 +24,87 @@
                 </div>
             </div>
 
+
+
             <!-- Settings Dropdown -->
              @auth
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
+
+                    <!-- Notification Bell -->
+                    @php
+                        $unreadCount = auth()->user()->unreadNotifications()->count();
+                    @endphp
+                    
+                    <div class="relative">
+
+                        <button
+                            @click="notificationsOpen = !notificationsOpen"
+                            class="relative p-2 mr-2 text-gray-600 hover:text-gray-900"
+                        >
+                            🔔
+
+                            @if($unreadCount > 0)
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 rounded-full">
+                                    {{ $unreadCount }}
+                                </span>
+                            @endif
+                        </button>
+
+                        <div
+                            x-show="notificationsOpen"
+                            @click.away="notificationsOpen = false"
+                            x-transition
+                            class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-lg border z-50"
+                        >
+
+                            <div class="p-4 border-b font-semibold">
+                                Notifications
+                            </div>
+
+                            <div class="max-h-96 overflow-y-auto">
+
+                                @forelse(auth()->user()->notifications->take(5) as $notification)
+
+                                    <form
+                                        method="POST"
+                                        action="{{ route('notifications.read', $notification->id) }}"
+                                    >
+                                        @csrf
+
+                                        <button
+                                            type="submit"
+                                            class="w-full text-left p-4 border-b {{ is_null($notification->read_at) ? 'bg-blue-50' : 'bg-white' }}"
+                                        >
+
+                                            <div class="text-sm font-medium">
+                                                Rating: {{ $notification->data['rating'] }}
+                                            </div>
+
+                                            <div class="text-sm text-gray-600 mt-1">
+                                                {{ $notification->data['message'] }}
+                                            </div>
+
+                                            <div class="text-xs text-gray-400 mt-2">
+                                                {{ $notification->created_at->diffForHumans() }}
+                                            </div>
+
+                                        </button>
+                                    </form>
+
+                                @empty
+
+                                    <div class="p-4 text-sm text-gray-500">
+                                        No notifications yet.
+                                    </div>
+
+                                @endforelse
+
+                            </div>
+
+                        </div>                       
+
+                    </div>
+
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
