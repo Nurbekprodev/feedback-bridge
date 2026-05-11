@@ -22,7 +22,7 @@ class FeedbackController extends Controller
 
         // validate
         $request->validate([
-            'rating' => ['required', 'integer', 'min:1', 'max:3'],
+            'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'message' => ['required'],
         ]);
 

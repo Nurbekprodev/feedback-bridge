@@ -75,12 +75,12 @@
                     placeholder="Your feedback..."
                 ></textarea>
 
-                <!-- Submit button ONLY for 1–3 -->
+                
                 <button
                     type="submit"
                     class="w-full bg-blue-600 hover:bg-blue-700 transition text-white py-3 rounded-xl font-medium"
                 >
-                    Submit Feedback
+                    Submit
                 </button>
 
             </div>
@@ -100,8 +100,7 @@
 
                     @if($business->google_review_url)
                         <a
-                            href="{{ $business->google_review_url }}"
-                            target="_blank"
+                            href="{{ route('review.google', $business) }}"
                             class="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl text-center font-medium"
                         >
                             Google Review
@@ -110,8 +109,7 @@
 
                     @if($business->naver_review_url)
                         <a
-                            href="{{ $business->naver_review_url }}"
-                            target="_blank"
+                            href="{{ route('review.naver', $business) }}"
                             class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl text-center font-medium"
                         >
                             Naver Review

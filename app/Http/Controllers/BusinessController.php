@@ -21,9 +21,10 @@ class BusinessController extends Controller
     {
         abort_if($business->user_id !== auth()->id(), 403);
 
-        $query = $business->feedbacks()->latest();
+        // BASE QUERY 
+        $query = $business->feedbacks();
 
-        // Rating filter
+        // FILTER (rating + status)
         if ($request->filter === 'positive') {
             $query->where('rating', '>=', 4);
         }
@@ -32,7 +33,6 @@ class BusinessController extends Controller
             $query->where('rating', '<=', 3);
         }
 
-        // Status filters
         if ($request->filter === 'new') {
             $query->where('status', 'new');
         }
@@ -45,30 +45,62 @@ class BusinessController extends Controller
             $query->where('status', 'resolved');
         }
 
-        $feedbacks = $query
-            ->paginate(10)
-            ->withQueryString();
+        // SEARCH
+        if ($request->search) {
+            $query->where('message', 'like', '%' . $request->search . '%');
+        }
 
-        // Stats
+        // SORT (default latest)
+        if ($request->sort === 'oldest') {
+            $query->oldest();
+        } elseif ($request->sort === 'highest') {
+            $query->orderBy('rating', 'desc');
+        } elseif ($request->sort === 'lowest') {
+            $query->orderBy('rating', 'asc');
+        } else {
+            $query->latest();
+        }
+
+        // PAGINATION
+        $feedbacks = $query->paginate(10)->withQueryString();
+
+        // STATS
         $totalCount = $business->feedbacks()->count();
-
         $averageRating = $business->feedbacks()->avg('rating');
 
-        $positiveCount = $business->feedbacks()
-            ->where('rating', '>=', 4)
+        $negativeCount = $business->feedbacks()->where('rating', '<=', 3)->count();
+
+        $newCount = $business->feedbacks()->where('status', 'new')->count();
+        $inProgressCount = $business->feedbacks()->where('status', 'in_progress')->count();
+        $resolvedCount = $business->feedbacks()->where('status', 'resolved')->count();
+
+        $resolutionRate = $totalCount > 0
+            ? round(($resolvedCount / $totalCount) * 100)
+            : 0;
+
+        $googleClicks = $business->reviewClicks()
+            ->where('platform', 'google')
             ->count();
 
-        $negativeCount = $business->feedbacks()
-            ->where('rating', '<=', 3)
+        $naverClicks = $business->reviewClicks()
+            ->where('platform', 'naver')
             ->count();
+
+        $totalClicks = $googleClicks + $naverClicks;
 
         return view('businesses.show', compact(
             'business',
             'feedbacks',
             'totalCount',
             'averageRating',
-            'positiveCount',
-            'negativeCount'
+            'negativeCount',
+            'newCount',
+            'inProgressCount',
+            'resolvedCount',
+            'resolutionRate',
+            'googleClicks',
+            'naverClicks',
+            'totalClicks',
         ));
     }
 

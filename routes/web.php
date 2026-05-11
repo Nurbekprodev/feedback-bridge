@@ -3,6 +3,7 @@
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -67,6 +68,16 @@ Route::post('/notifications/{notification}/read', function ($id){
         $notification->data['business_id']
     );
 })->middleware('auth')->name('notifications.read');
+
+
+// =====================
+// REVIEW CONTROLLER
+// =====================
+Route::get('/review/google/{business}', [ReviewController::class, 'google'])
+    ->name('review.google');
+
+Route::get('/review/naver/{business}', [ReviewController::class, 'naver'])
+    ->name('review.naver');
 
 
 // =====================

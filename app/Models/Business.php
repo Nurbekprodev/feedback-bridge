@@ -22,6 +22,9 @@ class Business extends Model
         return $this->hasMany(Feedback::class);
     }
 
+    public function reviewClicks(){
+        return $this->hasMany(ReviewClick::class);
+    }
 
     protected static function booted()
     {
@@ -29,4 +32,5 @@ class Business extends Model
             $business->uuid = Uuid::uuid4()->toString();
         });
     }
+
 }
