@@ -1,81 +1,153 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
 
-    <div class="py-10">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+<div class="min-h-screen bg-[#0b1120]">
 
-            @if (session('success'))
-                <div class="rounded-lg bg-green-100 px-4 py-3 text-green-800">
-                    {{ session('success') }}
-                </div>
-            @endif
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-            <div class="bg-white shadow-sm rounded-xl p-6">
+        @if (session('success'))
+            <div class="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-emerald-400">
+                {{ session('success') }}
+            </div>
+        @endif
 
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h3 class="text-lg font-semibold">
-                            Your Businesses
-                        </h3>
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-                        <p class="text-sm text-gray-500">
-                            Manage your review feedback pages.
-                        </p>
-                    </div>
+            <div>
+                <h1 class="text-3xl font-extrabold text-white">
+                    Dashboard
+                </h1>
 
-                    <a
-                        href="{{ route('businesses.create') }}"
-                        class="bg-black text-white px-4 py-2 rounded-lg text-sm"
-                    >
-                        Add Business
-                    </a>
+                <p class="text-sm text-slate-400 mt-1">
+                    Manage your businesses and review feedback pages
+                </p>
+            </div>
+
+            <a
+                href="{{ route('businesses.create') }}"
+                class="inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-500/20"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+
+                Add Business
+            </a>
+
+        </div>
+
+        <!-- Businesses -->
+        <div class="bg-[rgba(17,26,46,0.8)] backdrop-blur-xl border border-slate-800/60 rounded-3xl p-6 shadow-2xl">
+
+            <div class="flex items-center justify-between mb-6">
+
+                <div>
+                    <h2 class="text-lg font-bold text-white">
+                        Your Businesses
+                    </h2>
+
+                    <p class="text-sm text-slate-400 mt-1">
+                        Access and manage all your review funnels
+                    </p>
                 </div>
 
                 @if(auth()->user()->businesses->count())
-
-                    <div class="space-y-4">
-
-                        @foreach(auth()->user()->businesses as $business)
-
-                            <div class="border rounded-xl p-4 flex items-center justify-between">
-
-                                <div>
-                                    <h4 class="font-semibold">
-                                        {{ $business->name }}
-                                    </h4>
-
-                                    <p class="text-sm text-gray-500">
-                                        UUID: {{ $business->uuid }}
-                                    </p>
-                                </div>
-
-                                <a
-                                    href="{{ route('businesses.show', $business->id) }}"
-                                    class="text-sm text-blue-600"
-                                >
-                                    Open
-                                </a>
-
-                            </div>
-
-                        @endforeach
-
+                    <div class="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/70 border border-slate-700 text-sm text-slate-300">
+                        {{ auth()->user()->businesses->count() }} Businesses
                     </div>
-
-                @else
-
-                    <div class="text-gray-500">
-                        No businesses yet.
-                    </div>
-
                 @endif
 
             </div>
 
+            @if(auth()->user()->businesses->count())
+
+                <div class="space-y-5">
+
+                    @foreach(auth()->user()->businesses as $business)
+
+                        <div class="group rounded-3xl border border-slate-800 bg-slate-900/50 p-5 hover:border-slate-700 hover:bg-slate-900 transition-all duration-200">
+
+                            <div class="flex items-start justify-between gap-4">
+
+                                <div class="flex items-start gap-4 min-w-0">
+
+                                    <!-- Logo -->
+                                    <div class="w-14 h-14 rounded-2xl bg-indigo-500 flex items-center justify-center text-white text-lg font-bold shadow-lg shadow-indigo-500/20 shrink-0">
+                                        {{ strtoupper(substr($business->name, 0, 1)) }}
+                                    </div>
+
+                                    <!-- Content -->
+                                    <div class="min-w-0">
+
+                                        <h3 class="text-lg font-semibold text-white truncate">
+                                            {{ $business->name }}
+                                        </h3>
+
+                                        <p class="text-xs text-slate-500 mt-1 break-all">
+                                            {{ $business->uuid }}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- Open -->
+                                <a
+                                    href="{{ route('businesses.show', $business->id) }}"
+                                    class="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 text-sm font-medium text-indigo-400 hover:bg-indigo-500/20 transition shrink-0"
+                                >
+                                    Open
+
+                                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    @endforeach
+
+                </div>
+
+            @else
+
+                <div class="rounded-3xl border border-dashed border-slate-700 bg-slate-900/40 py-16 px-6 text-center">
+
+                    <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-slate-800 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M5 7l1 12h12l1-12M10 11v6M14 11v6"/>
+                        </svg>
+                    </div>
+
+                    <h3 class="text-lg font-semibold text-white mb-2">
+                        No businesses yet
+                    </h3>
+
+                    <p class="text-sm text-slate-400 mb-6">
+                        Create your first business and start collecting feedback
+                    </p>
+
+                    <a
+                        href="{{ route('businesses.create') }}"
+                        class="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-3 rounded-2xl text-sm font-semibold transition-all active:scale-95"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+
+                        Add Business
+                    </a>
+
+                </div>
+
+            @endif
+
         </div>
+
     </div>
+
+</div>
+
 </x-app-layout>

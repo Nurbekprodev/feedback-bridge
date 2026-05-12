@@ -56,10 +56,11 @@ Route::patch('/feedbacks/{feedback}/status', [FeedbackController::class, 'update
 // =====================
 // NOTIFICATIONS
 // =====================
-Route::post('/notifications/{notification}/read', function ($id){
+Route::post('/notifications/{notification}/read', function ($notification) {
+
     $notification = auth()->user()
         ->notifications()
-        ->findOrFail($id);
+        ->findOrFail($notification);
 
     $notification->markAsRead();
 
@@ -67,6 +68,7 @@ Route::post('/notifications/{notification}/read', function ($id){
         'businesses.show',
         $notification->data['business_id']
     );
+
 })->middleware('auth')->name('notifications.read');
 
 

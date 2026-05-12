@@ -1,192 +1,325 @@
-<nav x-data="{ open: false, notificationsOpen: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
+<nav x-data="{ open: false, notificationsOpen: false }"
+    class="sticky top-0 z-50 border-b border-slate-800/60 bg-[#0b1120]/80 backdrop-blur-xl">
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         <div class="flex justify-between h-16">
-            <div class="flex">
+
+            <!-- LEFT -->
+            <div class="flex items-center gap-8">
+
                 <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
+
+                    <div class="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                        <span class="text-white font-bold text-sm">
+                            {{ strtoupper(substr(config('app.name'), 0, 1)) }}
+                        </span>
+                    </div>
+
+                    <span class="text-white font-bold text-lg">
+                        {{ config('app.name') }}
+                    </span>
+
+                </a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden sm:flex items-center gap-2">
+
+                    <a href="{{ route('home') }}"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition
+                    {{ request()->routeIs('home')
+                        ? 'bg-slate-800 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        Home
                     </a>
+
+                    <a href="{{ route('dashboard') }}"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition
+                    {{ request()->routeIs('dashboard')
+                        ? 'bg-indigo-500 text-white'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        Dashboard
+                    </a>
+
                 </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
-                        {{ __('Home') }}
-                    </x-nav-link>
-                </div>
-
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
             </div>
 
+            @auth
 
+            <!-- RIGHT -->
+            <div class="hidden sm:flex items-center gap-4">
 
-            <!-- Settings Dropdown -->
-             @auth
-                <div class="hidden sm:flex sm:items-center sm:ms-6">
+                @php
+                    $unreadCount = auth()->user()->unreadNotifications()->count();
+                @endphp
 
-                    <!-- Notification Bell -->
-                    @php
-                        $unreadCount = auth()->user()->unreadNotifications()->count();
-                    @endphp
-                    
-                    <div class="relative">
+                <!-- Notifications -->
+                <div class="relative">
 
-                        <button
-                            @click="notificationsOpen = !notificationsOpen"
-                            class="relative p-2 mr-2 text-gray-600 hover:text-gray-900"
-                        >
-                            🔔
+                    <button
+                        @click="notificationsOpen = !notificationsOpen"
+                        class="relative p-2.5 rounded-xl bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-700 transition"
+                    >
 
-                            @if($unreadCount > 0)
-                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 rounded-full">
-                                    {{ $unreadCount }}
-                                </span>
-                            @endif
-                        </button>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118
+                                14.158V11a6.002 6.002 0 00-4-5.659V5a2
+                                2 0 10-4 0v.341C7.67 6.165 6 8.388
+                                6 11v3.159c0 .538-.214 1.055-.595
+                                1.436L4 17h5m6 0v1a3 3 0 11-6
+                                0v-1m6 0H9"/>
+                        </svg>
 
-                        <div
-                            x-show="notificationsOpen"
-                            @click.away="notificationsOpen = false"
-                            x-transition
-                            class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-lg border z-50"
-                        >
+                        @if($unreadCount > 0)
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
 
-                            <div class="p-4 border-b font-semibold">
+                    </button>
+
+                    <!-- Dropdown -->
+                    <div
+                        x-show="notificationsOpen"
+                        @click.away="notificationsOpen = false"
+                        x-transition
+                        class="absolute right-0 mt-3 w-80 rounded-2xl border border-slate-800 bg-[#111a2e] shadow-2xl overflow-hidden"
+                    >
+
+                        <div class="px-5 py-4 border-b border-slate-800">
+                            <h3 class="text-sm font-semibold text-white">
                                 Notifications
-                            </div>
+                            </h3>
+                        </div>
 
-                            <div class="max-h-96 overflow-y-auto">
+                        <div class="max-h-96 overflow-y-auto">
 
-                                @forelse(auth()->user()->notifications->take(5) as $notification)
+                            @forelse(auth()->user()->unreadNotifications->take(5) as $notification)
 
-                                    <form
-                                        method="POST"
-                                        action="{{ route('notifications.read', $notification->id) }}"
+                                <form
+                                    method="POST"
+                                    action="{{ route('notifications.read', $notification->id) }}"
+                                >
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="w-full text-left px-5 py-4 border-b border-slate-800 transition hover:bg-slate-800/40
+                                        {{ is_null($notification->read_at)
+                                            ? 'bg-indigo-500/5'
+                                            : '' }}"
                                     >
-                                        @csrf
 
-                                        <button
-                                            type="submit"
-                                            class="w-full text-left p-4 border-b {{ is_null($notification->read_at) ? 'bg-blue-50' : 'bg-white' }}"
-                                        >
+                                        <div class="flex items-center gap-2 mb-2">
 
-                                            <div class="text-sm font-medium">
-                                                Rating: {{ $notification->data['rating'] }}
+                                            <div class="flex text-yellow-400 text-xs">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    {{ $i <= $notification->data['rating'] ? '★' : '☆' }}
+                                                @endfor
                                             </div>
 
-                                            <div class="text-sm text-gray-600 mt-1">
-                                                @if(!empty($notification->data['message']))
-                                                    {{ $notification->data['message'] }}
-                                                @else
-                                                    <span class="italic text-gray-400">No message provided</span>
-                                                @endif
-                                            </div>
+                                            <span class="text-xs text-slate-400">
+                                                {{ $notification->data['rating'] }}/5
+                                            </span>
 
-                                            <div class="text-xs text-gray-400 mt-2">
-                                                {{ $notification->created_at->diffForHumans() }}
-                                            </div>
+                                        </div>
 
-                                        </button>
-                                    </form>
+                                        <div class="text-sm text-slate-300 leading-6">
 
-                                @empty
+                                            @if(!empty($notification->data['message']))
+                                                {{ $notification->data['message'] }}
+                                            @else
+                                                <span class="italic text-slate-500">
+                                                    No message provided
+                                                </span>
+                                            @endif
 
-                                    <div class="p-4 text-sm text-gray-500">
-                                        No notifications yet.
-                                    </div>
+                                        </div>
 
-                                @endforelse
+                                        <div class="text-xs text-slate-500 mt-3">
+                                            {{ $notification->created_at->diffForHumans() }}
+                                        </div>
 
-                            </div>
+                                    </button>
 
-                        </div>                       
+                                </form>
+
+                            @empty
+
+                                <div class="px-5 py-6 text-sm text-slate-500">
+                                    No notifications yet.
+                                </div>
+
+                            @endforelse
+
+                        </div>
 
                     </div>
 
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                <div>{{ Auth::user()->name }}</div>
+                </div>
 
-                                <div class="ms-1">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </button>
-                        </x-slot>
+                <!-- User -->
+                <x-dropdown align="right" width="48">
 
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('Profile') }}
+                    <x-slot name="trigger">
+
+                        <button
+                            class="flex items-center gap-3 px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 transition"
+                        >
+
+                            <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-sm font-semibold">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </div>
+
+                            <div class="text-sm font-medium text-white">
+                                {{ Auth::user()->name }}
+                            </div>
+
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"/>
+                            </svg>
+
+                        </button>
+
+                    </x-slot>
+
+                    <x-slot name="content">
+
+                        <div class="bg-[#111a2e] border border-slate-800 rounded-2xl overflow-hidden">
+
+                            <x-dropdown-link
+                                :href="route('profile.edit')"
+                                class="text-slate-300 hover:bg-slate-800 hover:text-white"
+                            >
+                                Profile
                             </x-dropdown-link>
 
-                            <!-- Authentication -->
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
 
-                                <x-dropdown-link :href="route('logout')"
-                                        onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
-                                    {{ __('Log Out') }}
+                                <x-dropdown-link
+                                    :href="route('logout')"
+                                    onclick="event.preventDefault(); this.closest('form').submit();"
+                                    class="text-red-400 hover:bg-red-500/10"
+                                >
+                                    Log Out
                                 </x-dropdown-link>
+
                             </form>
-                        </x-slot>
-                    </x-dropdown>
-                </div>
+
+                        </div>
+
+                    </x-slot>
+
+                </x-dropdown>
+
+            </div>
+
             @endauth
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
+            <!-- Mobile Hamburger -->
+            <div class="flex items-center sm:hidden">
+
+                <button
+                    @click="open = !open"
+                    class="p-2 rounded-xl bg-slate-800/60 text-slate-400 hover:text-white"
+                >
+
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+
+                        <path :class="{ 'hidden': open, 'inline-flex': !open }"
+                            class="inline-flex"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+
+                        <path :class="{ 'hidden': !open, 'inline-flex': open }"
+                            class="hidden"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+
                     </svg>
+
                 </button>
+
             </div>
+
         </div>
+
     </div>
 
-    <!-- Responsive Navigation Menu -->
-     @auth
-        <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-            <div class="pt-2 pb-3 space-y-1">
-                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                    {{ __('Dashboard') }}
-                </x-responsive-nav-link>
-            </div>
+    <!-- Mobile Menu -->
+    @auth
 
-            <!-- Responsive Settings Options -->
-            <div class="pt-4 pb-1 border-t border-gray-200">
-                <div class="px-4">
-                    <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-                </div>
+    <div
+        :class="{ 'block': open, 'hidden': !open }"
+        class="hidden sm:hidden border-t border-slate-800 bg-[#0b1120]"
+    >
 
-                <div class="mt-3 space-y-1">
-                    <x-responsive-nav-link :href="route('profile.edit')">
-                        {{ __('Profile') }}
-                    </x-responsive-nav-link>
+        <div class="px-4 py-4 space-y-2">
 
-                    <!-- Authentication -->
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
+            <a href="{{ route('home') }}"
+            class="block px-4 py-3 rounded-xl text-sm
+            {{ request()->routeIs('home')
+                ? 'bg-slate-800 text-white'
+                : 'text-slate-400 bg-slate-900/50' }}">
+                Home
+            </a>
 
-                        <x-responsive-nav-link :href="route('logout')"
-                                onclick="event.preventDefault();
-                                            this.closest('form').submit();">
-                            {{ __('Log Out') }}
-                        </x-responsive-nav-link>
-                    </form>
-                </div>
-            </div>
+            <a href="{{ route('dashboard') }}"
+            class="block px-4 py-3 rounded-xl text-sm
+            {{ request()->routeIs('dashboard')
+                ? 'bg-indigo-500 text-white'
+                : 'text-slate-400 bg-slate-900/50' }}">
+                Dashboard
+            </a>
+
         </div>
+
+        <div class="border-t border-slate-800 px-4 py-4">
+
+            <div class="mb-4">
+                <div class="text-white font-medium">
+                    {{ Auth::user()->name }}
+                </div>
+
+                <div class="text-sm text-slate-500">
+                    {{ Auth::user()->email }}
+                </div>
+            </div>
+
+            <div class="space-y-2">
+
+                <a href="{{ route('profile.edit') }}"
+                class="block px-4 py-3 rounded-xl bg-slate-900/50 text-slate-300 text-sm">
+                    Profile
+                </a>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="w-full text-left px-4 py-3 rounded-xl bg-red-500/10 text-red-400 text-sm"
+                    >
+                        Log Out
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
     @endauth
+
 </nav>
