@@ -65,10 +65,11 @@
 
                     @foreach(auth()->user()->businesses as $business)
 
-                        <div class="group rounded-3xl border border-slate-800 bg-slate-900/50 p-5 hover:border-slate-700 hover:bg-slate-900 transition-all duration-200">
+                        <div class="group rounded-2xl border border-slate-800/60 bg-slate-900/70 backdrop-blur-xl p-5 hover:border-slate-700 hover:bg-slate-900 transition-all duration-200 shadow-xl shadow-black/10">
 
                             <div class="flex items-start justify-between gap-4">
 
+                                <!-- Left side -->
                                 <div class="flex items-start gap-4 min-w-0">
 
                                     <!-- Logo -->
@@ -91,17 +92,30 @@
 
                                 </div>
 
-                                <!-- Open -->
-                                <a
-                                    href="{{ route('businesses.show', $business->id) }}"
-                                    class="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 text-sm font-medium text-indigo-400 hover:bg-indigo-500/20 transition shrink-0"
-                                >
-                                    Open
+                                <!-- Actions -->
+                                <div class="flex items-center gap-5 shrink-0">
 
-                                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </a>
+                                    <!-- Edit -->
+                                    <a
+                                        href="{{ route('businesses.edit', $business) }}"
+                                        class="text-sm font-medium text-slate-400 hover:text-indigo-400 transition underline underline-offset-4 decoration-slate-600 hover:decoration-indigo-400"
+                                    >
+                                        Edit
+                                    </a>
+
+                                    <!-- Open -->
+                                    <a
+                                        href="{{ route('businesses.show', $business->id) }}"
+                                        class="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 text-sm font-medium text-indigo-400 hover:bg-indigo-500/20 transition"
+                                    >
+                                        Open
+
+                                        <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+
+                                </div>
 
                             </div>
 

@@ -88,41 +88,41 @@ class BusinessController extends Controller
 
         $totalClicks = $googleClicks + $naverClicks;
 
-// Last 7 days feedback
-$feedbackLast7 = $business->feedbacks()
-    ->where('created_at', '>=', now()->subDays(7))
-    ->count();
+        // Last 7 days feedback
+        $feedbackLast7 = $business->feedbacks()
+            ->where('created_at', '>=', now()->subDays(7))
+            ->count();
 
-// Previous 7 days feedback    
-$feedbackPrev7 = $business->feedbacks()
-    ->whereBetween('created_at', [
-        now()->subDays(14),
-        now()->subDays(7)
-    ])
-    ->count();
+        // Previous 7 days feedback    
+        $feedbackPrev7 = $business->feedbacks()
+            ->whereBetween('created_at', [
+                now()->subDays(14),
+                now()->subDays(7)
+            ])
+            ->count();
 
-// Last 7 days clicks    
-$clicksLast7 = $business->reviewClicks()
-    ->where('created_at', '>=', now()->subDays(7))
-    ->count();
+        // Last 7 days clicks    
+        $clicksLast7 = $business->reviewClicks()
+            ->where('created_at', '>=', now()->subDays(7))
+            ->count();
 
 
-// Previous 7 days clicks    
-$clicksPrev7 = $business->reviewClicks()
-    ->whereBetween('created_at', [
-        now()->subDays(14),
-        now()->subDays(7)
-    ])
-    ->count();
-// Feedback trend %
-$feedbackTrend = $feedbackPrev7 > 0
-    ? round((($feedbackLast7 - $feedbackPrev7) / $feedbackPrev7) * 100)
-    : 0;
+        // Previous 7 days clicks    
+        $clicksPrev7 = $business->reviewClicks()
+            ->whereBetween('created_at', [
+                now()->subDays(14),
+                now()->subDays(7)
+            ])
+            ->count();
+        // Feedback trend %
+        $feedbackTrend = $feedbackPrev7 > 0
+            ? round((($feedbackLast7 - $feedbackPrev7) / $feedbackPrev7) * 100)
+            : 0;
 
-// Click trend %    
-$clickTrend = $clicksPrev7 > 0
-    ? round((($clicksLast7 - $clicksPrev7) / $clicksPrev7) * 100)
-    : 0;
+        // Click trend %    
+        $clickTrend = $clicksPrev7 > 0
+            ? round((($clicksLast7 - $clicksPrev7) / $clicksPrev7) * 100)
+            : 0;
 
 
 
@@ -154,6 +154,8 @@ $clickTrend = $clicksPrev7 > 0
     }
 
     public function store(Request $request)
+
+
     {
         $validated = $request->validate([
             'name' => ['required', 'max:255'],
@@ -170,6 +172,36 @@ $clickTrend = $clicksPrev7 > 0
             ->with('success', 'Business created.');
     }
 
+    public function edit(Business $business)
+    {
+        return view('businesses.edit', compact('business'));
+    }
+
+    public function update(Request $request, Business $business)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'max:255'],
+            'google_review_url' => ['nullable', 'url'],
+            'naver_review_url' => ['nullable', 'url'],
+        ]);
+
+        $business->update($validated);
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Business updated.');
+    }  
+    
+    public function destroy(Business $business)
+    {
+
+        $business->delete();
+
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Business deleted successfully.');
+    }
+
+    // Download QR
     public function qr(Business $business){
         abort_if($business->user_id !== auth()->id(), 403);
 
@@ -184,4 +216,6 @@ $clickTrend = $clicksPrev7 > 0
             'Content-Disposition' => 'attachment; filename="qr.svg"',
         ]);
     }
+
+
 }

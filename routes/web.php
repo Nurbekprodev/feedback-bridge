@@ -26,15 +26,27 @@ Route::get('/dashboard', function () {
 // =====================
 Route::middleware('auth')->group(function () {
 
+    // Create business
     Route::get('/businesses/create', [BusinessController::class, 'create'])
         ->name('businesses.create');
-
     Route::post('/businesses', [BusinessController::class, 'store'])
         ->name('businesses.store');
 
+    // Edit business
+    Route::get('/businesses/{business}/edit', [BusinessController::class, 'edit'])
+        ->name('businesses.edit');
+    Route::patch('/businesses/{business}', [BusinessController::class, 'update'])
+        ->name('businesses.update');
+
+    // Show business
     Route::get('/businesses/{business}', [BusinessController::class, 'show'])
         ->name('businesses.show');
 
+    // Delete business
+    Route::delete('/businesses/{business}', [BusinessController::class, 'destroy'])
+        ->name('businesses.destroy');
+
+    // Download QR
     Route::get('/businesses/{business}/qr', [BusinessController::class, 'qr'])
         ->name('businesses.qr');
 });
