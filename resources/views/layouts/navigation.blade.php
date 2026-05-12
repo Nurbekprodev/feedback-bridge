@@ -81,7 +81,11 @@
                                             </div>
 
                                             <div class="text-sm text-gray-600 mt-1">
-                                                {{ $notification->data['message'] }}
+                                                @if(!empty($notification->data['message']))
+                                                    {{ $notification->data['message'] }}
+                                                @else
+                                                    <span class="italic text-gray-400">No message provided</span>
+                                                @endif
                                             </div>
 
                                             <div class="text-xs text-gray-400 mt-2">

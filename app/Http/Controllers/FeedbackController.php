@@ -23,9 +23,10 @@ class FeedbackController extends Controller
         // validate
         $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'message' => ['required'],
+            'message' => ['nullable', 'string'],
         ]);
 
+        
         // create feedback
         $feedback = Feedback::create([
             'business_id' => $business->id,

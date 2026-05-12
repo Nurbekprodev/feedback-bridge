@@ -88,6 +88,44 @@ class BusinessController extends Controller
 
         $totalClicks = $googleClicks + $naverClicks;
 
+// Last 7 days feedback
+$feedbackLast7 = $business->feedbacks()
+    ->where('created_at', '>=', now()->subDays(7))
+    ->count();
+
+// Previous 7 days feedback    
+$feedbackPrev7 = $business->feedbacks()
+    ->whereBetween('created_at', [
+        now()->subDays(14),
+        now()->subDays(7)
+    ])
+    ->count();
+
+// Last 7 days clicks    
+$clicksLast7 = $business->reviewClicks()
+    ->where('created_at', '>=', now()->subDays(7))
+    ->count();
+
+
+// Previous 7 days clicks    
+$clicksPrev7 = $business->reviewClicks()
+    ->whereBetween('created_at', [
+        now()->subDays(14),
+        now()->subDays(7)
+    ])
+    ->count();
+// Feedback trend %
+$feedbackTrend = $feedbackPrev7 > 0
+    ? round((($feedbackLast7 - $feedbackPrev7) / $feedbackPrev7) * 100)
+    : 0;
+
+// Click trend %    
+$clickTrend = $clicksPrev7 > 0
+    ? round((($clicksLast7 - $clicksPrev7) / $clicksPrev7) * 100)
+    : 0;
+
+
+
         return view('businesses.show', compact(
             'business',
             'feedbacks',
@@ -101,6 +139,12 @@ class BusinessController extends Controller
             'googleClicks',
             'naverClicks',
             'totalClicks',
+            'feedbackLast7',
+            'feedbackPrev7',
+            'clicksLast7',
+            'clicksPrev7',
+            'feedbackTrend',
+            'clickTrend',
         ));
     }
 

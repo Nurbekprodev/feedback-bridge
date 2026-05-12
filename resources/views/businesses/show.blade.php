@@ -66,44 +66,95 @@
         </div>
 
         <!-- STATS -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="space-y-6 mb-6">
 
-            <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-                <div class="text-xs text-gray-400 uppercase">Total</div>
-                <div class="text-xl font-semibold text-gray-900">{{ $totalCount }}</div>
-            </div>
+            <!-- QUALITY -->
+            <div>
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+                    Feedback Quality
+                </h2>
 
-            <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-                <div class="text-xs text-gray-400 uppercase">Average</div>
-                <div class="text-xl font-semibold text-gray-900">
-                    {{ number_format($averageRating, 1) }}
-                </div>
-            </div>
-           
-            <div class="bg-white border border-gray-100 rounded-2xl p-4">
-                <div class="text-sm text-gray-500">Google Reviews Clicks</div>
-                <div class="text-xl font-semibold text-blue-600">
-                    {{ $googleClicks }}
-                </div>
-            </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-            <div class="bg-white border border-gray-100 rounded-2xl p-4">
-                <div class="text-sm text-gray-500">Naver Reviews Clicks</div>
-                <div class="text-xl font-semibold text-green-600">
-                    {{ $naverClicks }}
-                </div>
-            </div>
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                        <div class="text-xs text-gray-400 uppercase">Total</div>
+                        <div class="text-xl font-semibold text-gray-900">{{ $totalCount }}</div>
+                    </div>
 
-            <div class="bg-white border border-gray-100 rounded-2xl p-4">
-                <div class="text-sm text-gray-500">Total Review Actions</div>
-                <div class="text-xl font-semibold text-gray-900">
-                    {{ $totalClicks }}
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                        <div class="text-xs text-gray-400 uppercase">Average</div>
+                        <div class="text-xl font-semibold text-gray-900">
+                            {{ number_format($averageRating, 1) }}
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                        <div class="text-xs text-gray-400 uppercase">Negative</div>
+                        <div class="text-xl font-semibold text-red-600">{{ $negativeCount }}</div>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-                <div class="text-xs text-gray-400 uppercase">Negative</div>
-                <div class="text-xl font-semibold text-red-600">{{ $negativeCount }}</div>
+            <!-- CONVERSION -->
+            <div>
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+                    Conversion Funnel
+                </h2>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                        <div class="text-xs text-gray-400 uppercase">Google Clicks</div>
+                        <div class="text-xl font-semibold text-blue-600">{{ $googleClicks }}</div>
+                    </div>
+
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                        <div class="text-xs text-gray-400 uppercase">Naver Clicks</div>
+                        <div class="text-xl font-semibold text-green-600">{{ $naverClicks }}</div>
+                    </div>
+
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                        <div class="text-xs text-gray-400 uppercase">Total Actions</div>
+                        <div class="text-xl font-semibold text-gray-900">{{ $totalClicks }}</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- TRENDS -->
+            <div>
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+                    7-Day Trends
+                </h2>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                        <div class="text-xs text-gray-400 uppercase">Feedback</div>
+
+                        <div class="text-2xl font-semibold text-gray-900">
+                            {{ $feedbackLast7 }}
+                        </div>
+
+                        <div class="text-sm mt-1 {{ $feedbackTrend >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $feedbackTrend >= 0 ? '+' : '' }}{{ $feedbackTrend }}% vs last week
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                        <div class="text-xs text-gray-400 uppercase">Clicks</div>
+
+                        <div class="text-2xl font-semibold text-gray-900">
+                            {{ $clicksLast7 }}
+                        </div>
+
+                        <div class="text-sm mt-1 {{ $clickTrend >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $clickTrend >= 0 ? '+' : '' }}{{ $clickTrend }}% vs last week
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
         </div>
@@ -119,10 +170,6 @@
                 @php
                 $filters = [
                     'all' => ['label' => 'All', 'active' => 'bg-black text-white', 'inactive' => 'bg-white border text-gray-700'],
-
-                    'positive' => ['label' => 'Positive', 'active' => 'bg-green-600 text-white', 'inactive' => 'bg-white border text-gray-700'],
-
-                    'negative' => ['label' => 'Negative', 'active' => 'bg-red-600 text-white', 'inactive' => 'bg-white border text-gray-700'],
 
                     'new' => ['label' => 'New', 'active' => 'bg-blue-600 text-white', 'inactive' => 'bg-white border text-gray-700'],
 
@@ -243,6 +290,8 @@
                                     <p class="text-sm leading-7 text-gray-700">
                                         {{ $feedback->message }}
                                     </p>
+                                @else
+                                    <span class="text-gray-400 italic">No comment provided</span>
                                 @endif
 
                                 <div class="mt-4 text-xs text-gray-400">
