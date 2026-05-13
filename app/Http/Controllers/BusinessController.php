@@ -3,28 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Business;
-use App\Models\Feedback;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class BusinessController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index()
     {
-        $businesses = auth()->user()->businesses()->latest()->get();
+        // get user businesses with counts
+        $businesses = auth()->user()
+            ->businesses()
+            ->withCount(['feedbacks', 'reviewClicks'])
+            ->latest()
+            ->get();
 
         return view('businesses.index', compact('businesses'));
     }
 
     public function show(Business $business, Request $request)
     {
-        abort_if($business->user_id !== auth()->id(), 403);
+        // authorize view access
+        $this->authorize('view', $business);
 
-        // BASE QUERY 
+        // base feedback query
         $query = $business->feedbacks();
 
-        // FILTER (rating + status)
+        // apply filters
         if ($request->filter === 'positive') {
             $query->where('rating', '>=', 4);
         }
@@ -45,12 +53,12 @@ class BusinessController extends Controller
             $query->where('status', 'resolved');
         }
 
-        // SEARCH
+        // search messages
         if ($request->search) {
             $query->where('message', 'like', '%' . $request->search . '%');
         }
 
-        // SORT (default latest)
+        // sort results
         if ($request->sort === 'oldest') {
             $query->oldest();
         } elseif ($request->sort === 'highest') {
@@ -61,124 +69,128 @@ class BusinessController extends Controller
             $query->latest();
         }
 
-        // PAGINATION
+        // paginate results
         $feedbacks = $query->paginate(10)->withQueryString();
 
-        // STATS
-        $totalCount = $business->feedbacks()->count();
-        $averageRating = $business->feedbacks()->avg('rating');
+        // cache stats for speed
+        $stats = cache()->remember("business_stats_{$business->id}", 60, function () use ($business) {
 
-        $negativeCount = $business->feedbacks()->where('rating', '<=', 3)->count();
+            $feedbacks = $business->feedbacks();
+            $clicks = $business->reviewClicks();
 
-        $newCount = $business->feedbacks()->where('status', 'new')->count();
-        $inProgressCount = $business->feedbacks()->where('status', 'in_progress')->count();
-        $resolvedCount = $business->feedbacks()->where('status', 'resolved')->count();
+            $totalCount = $feedbacks->count();
+            $averageRating = $feedbacks->avg('rating');
 
-        $resolutionRate = $totalCount > 0
-            ? round(($resolvedCount / $totalCount) * 100)
-            : 0;
+            $negativeCount = (clone $feedbacks)->where('rating', '<=', 3)->count();
+            $newCount = (clone $feedbacks)->where('status', 'new')->count();
+            $inProgressCount = (clone $feedbacks)->where('status', 'in_progress')->count();
+            $resolvedCount = (clone $feedbacks)->where('status', 'resolved')->count();
 
-        $googleClicks = $business->reviewClicks()
-            ->where('platform', 'google')
-            ->count();
+            $resolutionRate = $totalCount > 0
+                ? round(($resolvedCount / $totalCount) * 100)
+                : 0;
 
-        $naverClicks = $business->reviewClicks()
-            ->where('platform', 'naver')
-            ->count();
+            $googleClicks = (clone $clicks)->where('platform', 'google')->count();
+            $naverClicks = (clone $clicks)->where('platform', 'naver')->count();
+            $totalClicks = $googleClicks + $naverClicks;
 
-        $totalClicks = $googleClicks + $naverClicks;
+            return compact(
+                'totalCount',
+                'averageRating',
+                'negativeCount',
+                'newCount',
+                'inProgressCount',
+                'resolvedCount',
+                'resolutionRate',
+                'googleClicks',
+                'naverClicks',
+                'totalClicks',
+            );
+        });
 
-        // Last 7 days feedback
+        // last 7 days feedback
         $feedbackLast7 = $business->feedbacks()
             ->where('created_at', '>=', now()->subDays(7))
             ->count();
 
-        // Previous 7 days feedback    
+        // previous 7 days feedback
         $feedbackPrev7 = $business->feedbacks()
-            ->whereBetween('created_at', [
-                now()->subDays(14),
-                now()->subDays(7)
-            ])
+            ->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
             ->count();
 
-        // Last 7 days clicks    
+        // last 7 days clicks
         $clicksLast7 = $business->reviewClicks()
             ->where('created_at', '>=', now()->subDays(7))
             ->count();
 
-
-        // Previous 7 days clicks    
+        // previous 7 days clicks
         $clicksPrev7 = $business->reviewClicks()
-            ->whereBetween('created_at', [
-                now()->subDays(14),
-                now()->subDays(7)
-            ])
+            ->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
             ->count();
-        // Feedback trend %
+
+        // feedback growth rate
         $feedbackTrend = $feedbackPrev7 > 0
             ? round((($feedbackLast7 - $feedbackPrev7) / $feedbackPrev7) * 100)
             : 0;
 
-        // Click trend %    
+        // click growth rate
         $clickTrend = $clicksPrev7 > 0
             ? round((($clicksLast7 - $clicksPrev7) / $clicksPrev7) * 100)
             : 0;
 
-
-
-        return view('businesses.show', compact(
-            'business',
-            'feedbacks',
-            'totalCount',
-            'averageRating',
-            'negativeCount',
-            'newCount',
-            'inProgressCount',
-            'resolvedCount',
-            'resolutionRate',
-            'googleClicks',
-            'naverClicks',
-            'totalClicks',
-            'feedbackLast7',
-            'feedbackPrev7',
-            'clicksLast7',
-            'clicksPrev7',
-            'feedbackTrend',
-            'clickTrend',
-        ));
+        return view('businesses.show', [
+            'business' => $business,
+            'feedbacks' => $feedbacks,
+            ...$stats,
+            'feedbackLast7' => $feedbackLast7,
+            'feedbackPrev7' => $feedbackPrev7,
+            'clicksLast7' => $clicksLast7,
+            'clicksPrev7' => $clicksPrev7,
+            'feedbackTrend' => $feedbackTrend,
+            'clickTrend' => $clickTrend,
+        ]);
     }
 
-    public function create(){
-
+    public function create()
+    {
+        // show create page
         return view('businesses.create');
     }
 
     public function store(Request $request)
-
-
     {
+        // validate input
         $validated = $request->validate([
             'name' => ['required', 'max:255'],
             'google_review_url' => ['nullable', 'url'],
             'naver_review_url' => ['nullable', 'url'],
         ]);
 
+        // attach user and uuid
         $validated['user_id'] = auth()->id();
         $validated['uuid'] = \Str::uuid();
 
         Business::create($validated);
 
-        return redirect()->route('dashboard')
+        return redirect()
+            ->route('dashboard')
             ->with('success', 'Business created.');
     }
 
     public function edit(Business $business)
     {
+        // authorize edit access
+        $this->authorize('update', $business);
+
         return view('businesses.edit', compact('business'));
     }
 
     public function update(Request $request, Business $business)
     {
+        // authorize update access
+        $this->authorize('update', $business);
+
+        // validate input
         $validated = $request->validate([
             'name' => ['required', 'max:255'],
             'google_review_url' => ['nullable', 'url'],
@@ -187,12 +199,15 @@ class BusinessController extends Controller
 
         $business->update($validated);
 
-        return redirect()->route('dashboard')
+        return redirect()
+            ->route('dashboard')
             ->with('success', 'Business updated.');
-    }  
-    
+    }
+
     public function destroy(Business $business)
     {
+        // authorize delete access
+        $this->authorize('delete', $business);
 
         $business->delete();
 
@@ -201,9 +216,10 @@ class BusinessController extends Controller
             ->with('success', 'Business deleted successfully.');
     }
 
-    // Download QR
-    public function qr(Business $business){
-        abort_if($business->user_id !== auth()->id(), 403);
+    public function qr(Business $business)
+    {
+        // authorize QR access
+        $this->authorize('view', $business);
 
         $url = url('/f/' . $business->uuid);
 
@@ -212,10 +228,8 @@ class BusinessController extends Controller
             ->generate($url);
 
         return Response::make($qr, 200, [
-            'Content-Type' => 'image/svg',
+            'Content-Type' => 'image/svg+xml',
             'Content-Disposition' => 'attachment; filename="qr.svg"',
         ]);
     }
-
-
 }

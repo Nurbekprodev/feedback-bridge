@@ -5,28 +5,47 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         <!-- HEADER -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
 
-            <div>
-                <h1 class="text-3xl md:text-4xl font-extrabold text-white">
-                    {{ $business->name }}
-                </h1>
+            <!-- LEFT: BACK + TITLE -->
+            <div class="space-y-3">
 
-                <p class="text-slate-400 mt-1">
-                    Manage feedback and reviews
-                </p>
+                <!-- Back Button -->
+                <a href="{{ route('dashboard') }}"
+                class="inline-flex items-center gap-2 text-slate-400 hover:text-white transition text-sm">
+                    
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 19l-7-7 7-7"/>
+                    </svg>
+
+                    Back to Dashboard
+                </a>
+
+                <!-- Title -->
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-white">
+                        {{ $business->name }}
+                    </h1>
+
+                    <p class="text-slate-400 mt-1">
+                        Manage feedback and reviews
+                    </p>
+                </div>
+
             </div>
 
-            <div class="flex items-center gap-3">
+            <!-- RIGHT: ACTIONS -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
 
                 <a href="{{ route('businesses.qr', $business) }}"
-                   class="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95">
+                class="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition active:scale-95 text-center">
                     QR Code
                 </a>
 
                 <button
                     onclick="copyLink('{{ url('/f/' . $business->uuid) }}', this)"
-                    class="bg-slate-800 border border-slate-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-700 transition-all active:scale-95">
+                    class="bg-slate-800 border border-slate-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-700 transition active:scale-95">
                     Copy Link
                 </button>
 

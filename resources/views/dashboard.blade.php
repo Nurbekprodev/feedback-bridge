@@ -67,50 +67,50 @@
 
                         <div class="group rounded-2xl border border-slate-800/60 bg-slate-900/70 backdrop-blur-xl p-5 hover:border-slate-700 hover:bg-slate-900 transition-all duration-200 shadow-xl shadow-black/10">
 
-                            <div class="flex items-start justify-between gap-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-                                <!-- Left side -->
-                                <div class="flex items-start gap-4 min-w-0">
+                                <!-- LEFT -->
+                                <div class="flex items-center gap-4 min-w-0">
 
-                                    <!-- Logo -->
-                                    <div class="w-14 h-14 rounded-2xl bg-indigo-500 flex items-center justify-center text-white text-lg font-bold shadow-lg shadow-indigo-500/20 shrink-0">
+                                    <!-- Avatar -->
+                                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20 shrink-0">
                                         {{ strtoupper(substr($business->name, 0, 1)) }}
                                     </div>
 
-                                    <!-- Content -->
+                                    <!-- Text -->
                                     <div class="min-w-0">
 
-                                        <h3 class="text-lg font-semibold text-white truncate">
+                                        <h3 class="text-base sm:text-lg font-semibold text-white truncate">
                                             {{ $business->name }}
                                         </h3>
 
-                                        <p class="text-xs text-slate-500 mt-1 break-all">
+                                        <!-- UUID (clean + subtle + truncates on mobile) -->
+                                        <p class="text-[11px] sm:text-xs text-slate-500 mt-1 font-mono truncate max-w-[180px] sm:max-w-none">
                                             {{ $business->uuid }}
                                         </p>
 
                                     </div>
-
                                 </div>
 
-                                <!-- Actions -->
-                                <div class="flex items-center gap-5 shrink-0">
+                                <!-- ACTIONS -->
+                                <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-5">
 
                                     <!-- Edit -->
                                     <a
                                         href="{{ route('businesses.edit', $business) }}"
-                                        class="text-sm font-medium text-slate-400 hover:text-indigo-400 transition underline underline-offset-4 decoration-slate-600 hover:decoration-indigo-400"
+                                        class="text-sm font-medium text-slate-400 hover:text-indigo-400 transition"
                                     >
                                         Edit
                                     </a>
 
                                     <!-- Open -->
                                     <a
-                                        href="{{ route('businesses.show', $business->id) }}"
-                                        class="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 text-sm font-medium text-indigo-400 hover:bg-indigo-500/20 transition"
+                                        href="{{ route('businesses.show', $business) }}"
+                                        class="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 px-3 py-2 text-sm font-medium text-indigo-400 hover:bg-indigo-500/20 transition"
                                     >
                                         Open
 
-                                        <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                         </svg>
                                     </a>
@@ -118,7 +118,6 @@
                                 </div>
 
                             </div>
-
                         </div>
 
                     @endforeach

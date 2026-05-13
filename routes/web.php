@@ -59,7 +59,8 @@ Route::get('/f/{uuid}', [FeedbackController::class, 'show'])
     ->name('feedback.show');
 
 Route::post('/f/{uuid}', [FeedbackController::class, 'store'])
-    ->name('feedback.submit');
+    ->name('feedback.submit')
+    ->middleware('throttle:10,1');
 
 Route::patch('/feedbacks/{feedback}/status', [FeedbackController::class, 'updateStatus'])
     ->middleware('auth')

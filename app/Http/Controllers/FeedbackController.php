@@ -11,49 +11,51 @@ class FeedbackController extends Controller
 {
     public function show($uuid)
     {
+        // get business by public uuid
         $business = Business::where('uuid', $uuid)->firstOrFail();
 
         return view('feedback.show', compact('business'));
     }
 
-    public function store(Request $request, $uuid){
-        // business
+    public function store(Request $request, $uuid)
+    {
+        // get business by public uuid
         $business = Business::where('uuid', $uuid)->firstOrFail();
 
-        // validate
-        $request->validate([
+        // validate public input
+        $validated = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'message' => ['nullable', 'string'],
+            'message' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        
         // create feedback
         $feedback = Feedback::create([
             'business_id' => $business->id,
-            'rating' => $request->rating,
-            'message' => $request->message,
+            'rating' => $validated['rating'],
+            'message' => $validated['message'] ?? null,
         ]);
 
-        if ($business->user && $request->rating <= 3) {
-            $business->user->notify(
-                new FeedbackNotification($feedback)
-            );
+        // notify only for negative feedback (non-blocking recommended later)
+        if ($business->user_id && $feedback->rating <= 3) {
+            $business->user->notify(new FeedbackNotification($feedback));
         }
 
-        // redirect
         return back()->with('success', 'Feedback sent.');
     }
 
     public function updateStatus(Request $request, Feedback $feedback)
     {
+        // lightweight ownership check (fast for V1)
         abort_if($feedback->business->user_id !== auth()->id(), 403);
 
-        $request->validate([
+        // validate status update
+        $validated = $request->validate([
             'status' => ['required', 'in:new,in_progress,resolved'],
         ]);
 
+        // update feedback status
         $feedback->update([
-            'status' => $request->status,
+            'status' => $validated['status'],
         ]);
 
         return back()->with('success', 'Status updated.');
