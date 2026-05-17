@@ -61,7 +61,7 @@ FeedbackHub helps businesses collect customer feedback, manage reviews, and gene
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/yourusername/feedbackhub.git
+git clone https://github.com/Nurbekprodev/feedbackHub.git
 
 cd feedbackhub
 
