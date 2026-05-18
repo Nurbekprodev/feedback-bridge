@@ -43,8 +43,11 @@ RUN npm ci
 # Build frontend assets
 RUN npm run build
 
+# Create temp directory
+RUN mkdir -p /tmp && chmod 1777 /tmp
+
 # Laravel permissions
-RUN chmod -R 775 storage bootstrap/cache
+RUN chmod -R 777 storage bootstrap/cache
 
 # Laravel storage link
 RUN php artisan storage:link || true
