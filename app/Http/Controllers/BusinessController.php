@@ -70,7 +70,7 @@ class BusinessController extends Controller
         }
 
         // paginate results
-        $feedbacks = $query->paginate(10)->withQueryString();
+        $feedbacks = $query->paginate(6)->withQueryString();
 
         // cache stats for speed
         $stats = cache()->remember("business_stats_{$business->id}", 60, function () use ($business) {
