@@ -56,9 +56,6 @@ COPY nginx/default.conf /etc/nginx/sites-available/default
 EXPOSE 10000
 
 # Start services
-CMD php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan migrate --force && \
+CMD php artisan migrate --force && \
     php-fpm -D && \
     nginx -g 'daemon off;'
