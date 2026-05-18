@@ -36,9 +36,9 @@ class FeedbackController extends Controller
         ]);
 
         // notify only for negative feedback (non-blocking recommended later)
-        // if ($business->user_id && $feedback->rating <= 3) {
-        //     $business->user->notify(new FeedbackNotification($feedback));
-        // }
+        if ($business->user_id && $feedback->rating <= 3) {
+            $business->user->notify(new FeedbackNotification($feedback));
+        }
 
         return back()->with('success', 'Feedback sent.');
     }
