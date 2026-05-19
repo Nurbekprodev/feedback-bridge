@@ -6,23 +6,20 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-8">
 
             <!-- Brand -->
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
 
-                <div class="w-11 h-11 rounded-2xl bg-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">
-                    F
-                </div>
+                <a href="/" class="flex items-center gap-3">
 
-                <div>
+                    <div class="flex items-center justify-center w-12 h-12 rounded-3xl bg-slate-900/80 border border-slate-800/60 backdrop-blur-xl shadow-2xl shadow-black/20">
+                        <x-application-logo class="w-10 h-10 fill-current text-white" />
+                    </div>
 
-                    <h3 class="text-sm font-semibold text-white">
+                    <!-- App name -->
+                    <span class="text-white font-semibold text-lg tracking-tight">
                         FeedbackHub
-                    </h3>
+                    </span>
 
-                    <p class="text-sm text-slate-500 mt-1">
-                        Customer feedback & review platform
-                    </p>
-
-                </div>
+                </a>
 
             </div>
 

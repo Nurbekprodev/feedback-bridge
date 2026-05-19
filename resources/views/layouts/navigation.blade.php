@@ -9,19 +9,15 @@
             <div class="flex items-center gap-8">
 
                 <!-- Logo -->
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
+                    <a href="/" class="flex items-center justify-center">
 
-                    <div class="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <span class="text-white font-bold text-sm">
-                            {{ strtoupper(substr(config('app.name'), 0, 1)) }}
-                        </span>
-                    </div>
+                        <div class="flex items-center justify-center w-12 h-12 rounded-3xl bg-slate-900/80 border border-slate-800/60 backdrop-blur-xl shadow-2xl shadow-black/20">
 
-                    <span class="text-white font-bold text-lg">
-                        {{ config('app.name') }}
-                    </span>
+                            <x-application-logo class="w-10 h-10 fill-current text-white" />
 
-                </a>
+                        </div>
+
+                    </a>
 
                 <!-- Desktop Nav -->
                 <div class="hidden sm:flex items-center gap-2">
