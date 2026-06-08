@@ -175,6 +175,8 @@
             </div>
 
             <!-- RIGHT (MOBILE) -->
+
+
             <div class="flex sm:hidden items-center gap-2 relative" x-data="{ notificationsOpen: false }">
 
                 @php
@@ -268,12 +270,48 @@
 
             </div>
 
+            @else
+
+                <!-- GUEST DESKTOP -->
+                <div class="hidden sm:flex items-center gap-3">
+
+                    <a href="{{ route('login') }}"
+                        class="px-4 py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition">
+                        Log In
+                    </a>
+
+                    <a href="{{ route('register') }}"
+                        class="px-4 py-2 rounded-xl text-sm font-medium bg-indigo-500 text-white hover:bg-indigo-600 transition">
+                        Register
+                    </a>
+
+                </div>            
+
             @endauth
+            
+            @guest
+            <div class="flex sm:hidden items-center gap-2">
+
+                <a href="{{ route('login') }}"
+                    class="px-3 py-2 rounded-xl bg-slate-800/60 text-slate-300 text-sm">
+                    Login
+                </a>
+
+                <a href="{{ route('register') }}"
+                    class="px-3 py-2 rounded-xl bg-indigo-500 text-white text-sm">
+                    Register
+                </a>
+
+            </div>
+            @endguest
 
         </div>
     </div>
 
     <!-- MOBILE MENU -->
+
+
+
     @auth
     <div :class="{ 'block': open, 'hidden': !open }"
         class="hidden sm:hidden border-t border-slate-800 bg-[#0b1120]">
