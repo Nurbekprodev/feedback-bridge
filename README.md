@@ -1,3 +1,11 @@
+---
+
+## 🔗 Live Demo
+
+[Visit FeedbackHub](https://feedbackhub-3kpw.onrender.com)
+
+---
+
 # FeedbackHub
 
 Modern customer feedback and review management platform built with Laravel.
@@ -300,13 +308,7 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
----
 
-## 🔗 Live Demo
-
-[Visit FeedbackHub](https://your-link.com)
-
----
 
 ## 📂 Project Structure
 
